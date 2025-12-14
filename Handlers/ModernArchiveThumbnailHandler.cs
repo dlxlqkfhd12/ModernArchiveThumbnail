@@ -68,41 +68,53 @@ namespace ModernArchiveThumbnail.Handlers
                                    name.EndsWith(".heic") || name.EndsWith(".heif") ||
                                    name.EndsWith(".avif") || name.EndsWith(".vif") ||
                                    name.EndsWith(".ico");
-                        });
+                        })
+                        .Take(2);
 
-                    var targetEntry = validImages.OrderBy(e => e.Key).FirstOrDefault();
-                    if (targetEntry == null) return null;
-
-                    using (var ms = new MemoryStream())
+                    foreach (var targetEntry in validImages)
                     {
-                        targetEntry.WriteTo(ms);
-                        ms.Position = 0;
-
-                        if (mode == 2)
+                        try
                         {
-                            var result = TryWpfDecodeTempFile(ms, width, targetEntry.Key);
-                            if (result != null) return result;
-                            ms.Position = 0; 
-                        }
-
-                        var imgInfo = SixLabors.ImageSharp.Image.Identify(ms);
-                        if (imgInfo != null && (imgInfo.Width > 16384 || imgInfo.Height > 16384)) return null;
-
-                        ms.Position = 0;
-                        using (var img = SixLabors.ImageSharp.Image.Load(ms))
-                        {
-                            var sampler = (mode == 0) ? KnownResamplers.Triangle : KnownResamplers.NearestNeighbor;
-
-                            img.Mutate(x => x.Resize(new ResizeOptions
+                            using (var ms = new MemoryStream())
                             {
-                                Size = new SixLabors.ImageSharp.Size((int)width, 0),
-                                Mode = ResizeMode.Max,
-                                Sampler = sampler
-                            }).BackgroundColor(SixLabors.ImageSharp.Color.White)); 
+                                targetEntry.WriteTo(ms);
+                                ms.Position = 0;
 
-                            var bmpStream = new MemoryStream();
-                            img.SaveAsBmp(bmpStream);
-                            return new Bitmap(bmpStream);
+                                if (mode == 2)
+                                {
+                                    var result = TryWpfDecodeTempFile(ms, width, targetEntry.Key);
+                                    if (result != null) return result;
+                                    
+                                    ms.Position = 0; 
+                                }
+
+                                var imgInfo = SixLabors.ImageSharp.Image.Identify(ms);
+                                if (imgInfo != null && (imgInfo.Width > 16384 || imgInfo.Height > 16384))
+                                {
+                                    continue;
+                                }
+
+                                ms.Position = 0;
+                                using (var img = SixLabors.ImageSharp.Image.Load(ms))
+                                {
+                                    var sampler = (mode == 0) ? KnownResamplers.Triangle : KnownResamplers.NearestNeighbor;
+
+                                    img.Mutate(x => x.Resize(new ResizeOptions
+                                    {
+                                        Size = new SixLabors.ImageSharp.Size((int)width, 0),
+                                        Mode = ResizeMode.Max,
+                                        Sampler = sampler
+                                    }).BackgroundColor(SixLabors.ImageSharp.Color.White)); 
+
+                                    var bmpStream = new MemoryStream();
+                                    img.SaveAsBmp(bmpStream);
+                                    return new Bitmap(bmpStream);
+                                }
+                            }
+                        }
+                        catch
+                        {
+                            continue;
                         }
                     }
                 }
@@ -111,6 +123,7 @@ namespace ModernArchiveThumbnail.Handlers
             {
                 return null;
             }
+            return null;
         }
 
         private Bitmap TryWpfDecodeTempFile(MemoryStream ms, uint width, string fileName)
