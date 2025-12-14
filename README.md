@@ -23,10 +23,16 @@ A Windows Shell Extension that allows you to preview images inside archives with
     3. **고속 모드 (High Speed):** 윈도우 가속 사용 (가장 빠름 / 기본값)
 
 ### 📂 강력한 호환성 (Wide Format Support)
-* `.zip`, `.7z`, `.rar`, `.cbz` 등 다양한 압축 포맷을 지원합니다.
-* `.avif`, `.webp`, `.heic` 등 최신 이미지 포맷도 미리 볼 수 있습니다.
-* Supports various archive formats like `.zip`, `.7z`, `.rar`, `.cbz`.
-* Supports modern image formats like `.avif`, `.webp`, `.heic`.
+* **압축 포맷 (Archives):** `.zip`, `.rar`, `.7z`, `.cbz`, `.cbr`
+* **이미지 포맷 (Images):**
+    * **General:** `.jpg`, `.jpeg`, `.png`, `.bmp`, `.gif`, `.ico`
+    * **Modern:** `.webp`, `.avif`, `.heic`, `.heif`
+    * **Pro/Other:** `.tiff`, `.tga`
+* Supports **Archives**: `.zip`, `.rar`, `.7z`, `.cbz`, `.cbr`
+* Supports **Images**:
+    * **General:** `.jpg`, `.jpeg`, `.png`, `.bmp`, `.gif`, `.ico`
+    * **Modern:** `.webp`, `.avif`, `.heic`, `.heif`
+    * **Pro/Other:** `.tiff`, `.tga`
 
 ---
 
