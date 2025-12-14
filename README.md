@@ -15,9 +15,12 @@ A Windows Shell Extension that allows you to preview images inside archives with
 * 램(RAM)을 활용한 즉시 로딩 방식을 적용하여 딜레이가 없습니다.
 * Uses RAM-based instant loading for zero delay.
 
-### ⚙️ 성능 제어 (Performance Control)
-* 동봉된 `Settings` 앱을 통해 **고속 모드**와 **저사양 모드**를 선택할 수 있습니다.
-* Includes a `Settings` app to switch between **High-Speed Mode** and **Low-End Mode**.
+### ⚙️ 3가지 성능 모드 지원 (3 Performance Modes)
+* 동봉된 `Settings` 앱을 통해 PC 사양에 맞춰 3가지 모드를 선택할 수 있습니다.
+* Includes a `Settings` app to choose from 3 performance modes:
+    1. **호환성 모드 1 (High Quality):** 화질 우선 (가장 부드러움)
+    2. **호환성 모드 2 (Optimized):** 속도/화질 균형 (저사양 권장)
+    3. **고속 모드 (High Speed):** 윈도우 가속 사용 (가장 빠름 / 기본값)
 
 ### 📂 강력한 호환성 (Wide Format Support)
 * `.zip`, `.7z`, `.rar`, `.cbz` 등 다양한 압축 포맷을 지원합니다.
@@ -44,6 +47,26 @@ You can download the latest version from the link below.
 1. Download and install `ModernArchiveThumbnail_Setup.exe`.
 2. Windows Explorer will restart automatically after installation.
 3. Run the **[Settings]** app from the Start Menu to change performance modes.
+
+---
+
+## 📜 라이선스 (License)
+
+이 프로젝트는 **MIT 라이선스**에 따라 배포됩니다.
+즉, 저작권 표시(LICENSE 파일)만 남기면 누구나 자유롭게 사용, 수정, 재배포할 수 있습니다.
+자세한 내용은 `LICENSE` 파일을 참고하세요.
+
+This project is licensed under the **MIT License**.
+Feel free to use, modify, and distribute this project as long as you include the original copyright notice.
+See the `LICENSE` file for more details.
+
+---
+
+## 📜 Open Source Libraries
+This project uses the following open-source libraries:
+* **SharpShell** (MIT License)
+* **ImageSharp** (Apache 2.0 License)
+* **SharpCompress** (MIT License)
 
 ---
 Made with ❤️ by dlxlqkfhd12
