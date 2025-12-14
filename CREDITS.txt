@@ -1,0 +1,27 @@
+Modern Archive Thumbnail Handler
+Copyright (c) 2025
+
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from the use of this software.
+
+---
+
+This software uses the following open source libraries:
+
+1. SharpShell (MIT License)
+   Copyright (c) Dave Kerr
+   https://github.com/dwmkerr/sharpshell
+
+2. SharpCompress (MIT License)
+   Copyright (c) Adam Hathcock
+   https://github.com/adamhathcock/sharpcompress
+
+3. SixLabors.ImageSharp (Apache License 2.0)
+   Copyright (c) Six Labors
+   https://github.com/SixLabors/ImageSharp
+
+4. Costura.Fody (MIT License)
+   Copyright (c) Simon Cropp, Cameron MacFarland
+   https://github.com/Fody/Costura
+
+5. AVIF & HEIC support is provided via Windows Imaging Component (WIC).
