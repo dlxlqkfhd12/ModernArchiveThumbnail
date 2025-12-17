@@ -32,7 +32,7 @@ namespace ModernArchiveThumbnailSettings
         public SettingsForm()
         {
             this.Text = "Modern Archive Thumbnail Settings";
-            this.Size = new Size(580, 500);
+            this.Size = new Size(580, 530);
             this.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
@@ -63,25 +63,41 @@ namespace ModernArchiveThumbnailSettings
 
         private void SetupGeneralTab(TabPage tab)
         {
-            GroupBox grpMode = new GroupBox { Text = "모드 선택 (Select Mode)", Location = new Point(20, 20), Size = new Size(520, 250) };
+            GroupBox grpMode = new GroupBox { Text = "모드 선택 (Select Mode)", Location = new Point(20, 20), Size = new Size(520, 280) };
             
             RadioButton rb1 = new RadioButton { Name = "rbMode1", Text = "1. 호환성 모드 (최고 화질 - High Quality / Compatibility)", Location = new Point(30, 40), AutoSize = true };
             RadioButton rb2 = new RadioButton { Name = "rbMode2", Text = "2. 일반 모드 (보통 속도 - Normal Speed / Balanced)", Location = new Point(30, 75), AutoSize = true };
             RadioButton rb3 = new RadioButton { Name = "rbMode3", Text = "3. 고속 모드 (빠름 - High Speed / Fast Streaming)", Location = new Point(30, 110), AutoSize = true, ForeColor = Color.DarkBlue };
             RadioButton rb4 = new RadioButton { Name = "rbMode0", Text = "4. 썸네일 기능 끄기 (Disable Thumbnails & Clear Cache)", Location = new Point(30, 145), AutoSize = true, ForeColor = Color.DarkRed };
             
-            Label lblInfo = new Label { Text = "※ 모드 3은 최적화된 디코더를 사용합니다 (메모리 재사용, 백업 디코더 포함).\n   Mode 3 uses optimized decoder with fallback support.", Location = new Point(30, 190), AutoSize = true, ForeColor = Color.Gray, Font = new Font("Segoe UI", 8F) };
+            CheckBox chkSkipScanlation = new CheckBox { 
+                Name = "chkSkip",
+                Text = "Scanlation 파일 스킵 (Skip credits/logo files)", 
+                Location = new Point(30, 180),
+                AutoSize = true
+            };
+
+            CheckBox chkPreferCover = new CheckBox { 
+                Name = "chkCover",
+                Text = "Cover 파일 우선 (Prefer cover/front images)", 
+                Location = new Point(30, 205),
+                AutoSize = true
+            };
+
+            Label lblInfo = new Label { Text = "※ 모드 3은 최적화된 디코더를 사용합니다 (메모리 재사용, 백업 디코더 포함).\n   Mode 3 uses optimized decoder with fallback support.", Location = new Point(30, 235), AutoSize = true, ForeColor = Color.Gray, Font = new Font("Segoe UI", 8F) };
             
             grpMode.Controls.Add(rb1); 
             grpMode.Controls.Add(rb2); 
             grpMode.Controls.Add(rb3); 
             grpMode.Controls.Add(rb4);
+            grpMode.Controls.Add(chkSkipScanlation);
+            grpMode.Controls.Add(chkPreferCover);
             grpMode.Controls.Add(lblInfo);
 
-            Button btnApply = new Button { Name = "btnApply", Text = "설정 적용 (Apply Settings)", Location = new Point(20, 290), Size = new Size(520, 50), FlatStyle = FlatStyle.Flat, BackColor = Color.DodgerBlue, ForeColor = Color.White, Font = new Font("Segoe UI", 11F, FontStyle.Bold) };
+            Button btnApply = new Button { Name = "btnApply", Text = "설정 적용 (Apply Settings)", Location = new Point(20, 310), Size = new Size(520, 50), FlatStyle = FlatStyle.Flat, BackColor = Color.DodgerBlue, ForeColor = Color.White, Font = new Font("Segoe UI", 11F, FontStyle.Bold) };
             btnApply.Click += BtnApply_Click;
 
-            Label lblStatus = new Label { Name = "lblStatus", Text = "현재 상태 (Status):", Location = new Point(25, 360), AutoSize = true, ForeColor = Color.Gray };
+            Label lblStatus = new Label { Name = "lblStatus", Text = "현재 상태 (Status):", Location = new Point(25, 380), AutoSize = true, ForeColor = Color.Gray };
 
             tab.Controls.Add(grpMode);
             tab.Controls.Add(btnApply);
@@ -109,10 +125,14 @@ namespace ModernArchiveThumbnailSettings
             
             int mode = 2;
             int active = 1;
+            int skipScanlation = 0;
+            int preferCover = 0;
 
             if (key != null) {
                 mode = (int)key.GetValue("ThumbnailMode", 2);
                 active = (int)key.GetValue("HandlerRegistered", 1);
+                skipScanlation = (int)key.GetValue("SkipScanlation", 0);
+                preferCover = (int)key.GetValue("PreferCover", 0);
             }
             
             var grp = tabControl.TabPages[0].Controls[0] as GroupBox;
@@ -123,6 +143,9 @@ namespace ModernArchiveThumbnailSettings
             else if(mode == 3) ((RadioButton)grp.Controls["rbMode3"]).Checked = true;
             else ((RadioButton)grp.Controls["rbMode2"]).Checked = true;
             
+            ((CheckBox)grp.Controls["chkSkip"]).Checked = (skipScanlation == 1);
+            ((CheckBox)grp.Controls["chkCover"]).Checked = (preferCover == 1);
+
             UpdateStatusLabel(active == 1);
             if (key != null) key.Close();
         }
@@ -133,6 +156,8 @@ namespace ModernArchiveThumbnailSettings
             var grp = tabControl.TabPages[0].Controls[0] as GroupBox;
             int modeToSave = 2;
             int activeToSave = 1;
+            int skipToSave = 0;
+            int coverToSave = 0;
 
             int prevActive = 1;
             int prevMode = 2;
@@ -155,9 +180,14 @@ namespace ModernArchiveThumbnailSettings
                 else if (((RadioButton)grp.Controls["rbMode3"]).Checked) modeToSave = 3;
             }
 
+            if (((CheckBox)grp.Controls["chkSkip"]).Checked) skipToSave = 1;
+            if (((CheckBox)grp.Controls["chkCover"]).Checked) coverToSave = 1;
+
             var key = Registry.CurrentUser.CreateSubKey(RegKeyPath);
             key.SetValue("ThumbnailMode", modeToSave);
             key.SetValue("HandlerRegistered", activeToSave);
+            key.SetValue("SkipScanlation", skipToSave);
+            key.SetValue("PreferCover", coverToSave);
             key.Close();
 
             bool needRestart = false;
@@ -202,7 +232,7 @@ namespace ModernArchiveThumbnailSettings
             else if (prevMode != modeToSave)
                 MessageBox.Show("모드가 변경되었습니다. 탐색기가 새로고침 되었습니다.\nMode Changed & Explorer Refreshed.", "Complete");
             else
-                MessageBox.Show("설정이 적용되었습니다.\nSettings Applied.", "Complete");
+                MessageBox.Show("상세 설정이 저장되었습니다.\nAdvanced Settings Saved.", "Complete");
         }
 
         private void BtnClean_Click(object sender, EventArgs e)
