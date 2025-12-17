@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
     <AssemblyName>ModernArchiveThumbnail</AssemblyName>
@@ -9,23 +8,24 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <SignAssembly>false</SignAssembly>
     <RegisterForComInterop>false</RegisterForComInterop>
-    <UseWPF>true</UseWPF> 
+    <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
-    
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <NoWarn>NU1901;NU1902;NU1903;NU1904;GHSA-rxmq-m78w-7wmc;GHSA-2cmq-823j-5qj8</NoWarn>
   </PropertyGroup>
-
   <ItemGroup>
+    <PackageReference Include="NetVips" Version="3.1.0" />
+    <PackageReference Include="NetVips.Native" Version="8.17.3" />
+    <PackageReference Include="SharpDX.Direct2D1" Version="4.2.0" />
+    <PackageReference Include="SharpDX.DXGI" Version="4.2.0" />
     <PackageReference Include="SharpShell" Version="2.7.2" />
     <PackageReference Include="SharpCompress" Version="0.37.2" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.9" />
     <PackageReference Include="Costura.Fody" Version="5.7.0" PrivateAssets="all" />
   </ItemGroup>
-  
   <ItemGroup>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    </ItemGroup>
-
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
 </Project>

@@ -3,11 +3,12 @@ using SharpShell.SharpThumbnailHandler;
 using SharpCompress.Archives;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Formats;
 using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -20,6 +21,12 @@ namespace ModernArchiveThumbnail.Handlers
     [COMServerAssociation(AssociationType.ClassOfExtension, ".cbz", ".cbr", ".zip", ".rar", ".7z")]
     public class ModernArchiveThumbnailHandler : SharpThumbnailHandler
     {
+        private static readonly HashSet<string> ValidExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ".jpg", ".jpeg", ".jpe", ".jfif", ".png", ".webp", ".bmp", ".gif",
+            ".tiff", ".tif", ".tga", ".heic", ".heif", ".avif", ".vif", ".ico"
+        };
+
         static ModernArchiveThumbnailHandler()
         {
             AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
@@ -40,52 +47,70 @@ namespace ModernArchiveThumbnail.Handlers
         {
             try
             {
-                if (SelectedItemStream == null) return null;
-
+                int active = 1;
                 int mode = 2;
-                try
+                
+                using (var key = Registry.CurrentUser.OpenSubKey(@"Software\ModernArchiveThumbnail"))
                 {
-                    using (var key = Registry.CurrentUser.OpenSubKey(@"Software\ModernArchiveThumbnail"))
+                    if (key != null)
                     {
-                        if (key != null) mode = (int)key.GetValue("Mode", 2);
+                        active = (int)key.GetValue("HandlerRegistered", 1);
+                        mode = (int)key.GetValue("ThumbnailMode", 2);
                     }
                 }
-                catch { }
+
+                if (active == 0) return null;
+                if (SelectedItemStream == null) return null;
 
                 using (var archive = ArchiveFactory.Open(SelectedItemStream))
                 {
+                    int maxTries = (mode == 1) ? 5 : (mode == 3) ? 4 : 2;
+                    
                     var validImages = archive.Entries
                         .Where(e => !e.IsDirectory)
-                        .Where(e =>
-                        {
-                            var name = e.Key.ToLower();
-                            return name.EndsWith(".jpg") || name.EndsWith(".jpeg") || 
-                                   name.EndsWith(".jpe") || name.EndsWith(".jfif") ||
-                                   name.EndsWith(".png") || name.EndsWith(".webp") ||
-                                   name.EndsWith(".bmp") || name.EndsWith(".gif") ||
-                                   name.EndsWith(".tiff") || name.EndsWith(".tif") ||
-                                   name.EndsWith(".tga") || 
-                                   name.EndsWith(".heic") || name.EndsWith(".heif") ||
-                                   name.EndsWith(".avif") || name.EndsWith(".vif") ||
-                                   name.EndsWith(".ico");
+                        .Where(e => {
+                            string ext = Path.GetExtension(e.Key);
+                            return ext.Length > 0 && ValidExtensions.Contains(ext);
                         })
-                        .Take(2);
+                        .OrderBy(e => e.Key)
+                        .Take(maxTries);
+
+                    byte[] buffer = null;
 
                     foreach (var targetEntry in validImages)
                     {
                         try
                         {
-                            using (var ms = new MemoryStream())
+                            long entrySize = targetEntry.Size;
+                            if (entrySize > int.MaxValue || entrySize <= 0)
+                                continue;
+
+                            int size = (int)entrySize;
+                            if (buffer == null || buffer.Length < size)
+                                buffer = new byte[Math.Max(size, 1024 * 1024)];
+
+                            using (var ms = new MemoryStream(buffer, 0, size, true, true))
                             {
                                 targetEntry.WriteTo(ms);
                                 ms.Position = 0;
 
-                                if (mode == 2)
+                                if (mode == 3)
                                 {
-                                    var result = TryWpfDecodeTempFile(ms, width, targetEntry.Key);
+                                    var result = TryStreamingDecode(ms, width);
                                     if (result != null) return result;
                                     
-                                    ms.Position = 0; 
+                                    ms.Position = 0;
+                                    result = TryWpfDecodeFromStream(ms, width);
+                                    if (result != null) return result;
+                                    
+                                    continue;
+                                }
+
+                                if (mode == 1 || mode == 2)
+                                {
+                                    var result = TryWpfDecodeFromStream(ms, width);
+                                    if (result != null) return result;
+                                    ms.Position = 0;
                                 }
 
                                 var imgInfo = SixLabors.ImageSharp.Image.Identify(ms);
@@ -97,14 +122,14 @@ namespace ModernArchiveThumbnail.Handlers
                                 ms.Position = 0;
                                 using (var img = SixLabors.ImageSharp.Image.Load(ms))
                                 {
-                                    var sampler = (mode == 0) ? KnownResamplers.Triangle : KnownResamplers.NearestNeighbor;
+                                    var sampler = (mode == 1) ? KnownResamplers.Triangle : KnownResamplers.NearestNeighbor;
 
                                     img.Mutate(x => x.Resize(new ResizeOptions
                                     {
                                         Size = new SixLabors.ImageSharp.Size((int)width, 0),
                                         Mode = ResizeMode.Max,
                                         Sampler = sampler
-                                    }).BackgroundColor(SixLabors.ImageSharp.Color.White)); 
+                                    }).BackgroundColor(SixLabors.ImageSharp.Color.White));
 
                                     var bmpStream = new MemoryStream();
                                     img.SaveAsBmp(bmpStream);
@@ -126,21 +151,43 @@ namespace ModernArchiveThumbnail.Handlers
             return null;
         }
 
-        private Bitmap TryWpfDecodeTempFile(MemoryStream ms, uint width, string fileName)
+        private Bitmap TryStreamingDecode(MemoryStream ms, uint width)
         {
-            string tempFile = null;
             try
             {
-                string tempFolder = Path.GetTempPath();
-                string rawExt = Path.GetExtension(fileName).ToLower();
-                string extension = (rawExt.Length > 0 && rawExt.Length < 6) ? rawExt : ".tmp";
-                tempFile = Path.Combine(tempFolder, Guid.NewGuid().ToString() + extension);
+                using (var img = System.Drawing.Image.FromStream(ms, false, false))
+                {
+                    if (img.Width > 16384 || img.Height > 16384) return null;
 
-                File.WriteAllBytes(tempFile, ms.ToArray());
+                    int newHeight = (int)(img.Height * ((float)width / img.Width));
+                    if (newHeight == 0) newHeight = 1;
 
+                    var thumbnail = new Bitmap((int)width, newHeight, PixelFormat.Format24bppRgb);
+                    using (var g = Graphics.FromImage(thumbnail))
+                    {
+                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Low;
+                        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighSpeed;
+                        g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighSpeed;
+                        g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighSpeed;
+                        g.DrawImage(img, 0, 0, (int)width, newHeight);
+                    }
+                    return thumbnail;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private Bitmap TryWpfDecodeFromStream(MemoryStream ms, uint width)
+        {
+            try
+            {
+                ms.Position = 0;
                 var bitmapImage = new BitmapImage();
                 bitmapImage.BeginInit();
-                bitmapImage.UriSource = new Uri(tempFile);
+                bitmapImage.StreamSource = ms;
                 bitmapImage.DecodePixelWidth = (int)width;
                 bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
                 bitmapImage.EndInit();
@@ -155,8 +202,10 @@ namespace ModernArchiveThumbnail.Handlers
                     return new Bitmap(outStream);
                 }
             }
-            catch { return null; }
-            finally { try { if (tempFile != null && File.Exists(tempFile)) File.Delete(tempFile); } catch { } }
+            catch
+            {
+                return null;
+            }
         }
     }
 }
