@@ -17,7 +17,7 @@ RestartApplications=no
 UninstallDisplayIcon={app}\Settings.exe
 
 [Files]
-Source: "C:\Users\pc\Desktop\ModernArchiveThumbnail\Settings\bin\Release\net48\Settings.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\pc\Desktop\ModernArchiveThumbnail\Settings\Settings.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\pc\Desktop\ModernArchiveThumbnail\bin\Release\net48\*.*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; Excludes: "*.pdb,*.xml"
 
 [Icons]

@@ -27,23 +27,23 @@ namespace ModernArchiveThumbnailSettings
         public SettingsForm()
         {
             this.Text = "Modern Archive Thumbnail Manager";
-            this.Size = new Size(450, 220);
+            this.Size = new Size(450, 260);
             this.Font = new Font("Segoe UI", 9F);
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.StartPosition = FormStartPosition.CenterScreen;
 
             Label lblInfo = new Label { 
-                Text = "고속 엔진이 적용 중입니다.\n썸네일이 안 보이면 아래 버튼을 누르세요.", 
-                Location = new Point(30, 30), 
-                Size = new Size(380, 50), 
+                Text = "✅ Instant Stream Engine Active\n(고속 스트리밍 엔진이 정상 작동 중입니다)\n\nIf thumbnails don't appear, click the button below.\n(썸네일이 보이지 않으면 아래 버튼을 눌러주세요)", 
+                Location = new Point(20, 20), 
+                Size = new Size(400, 80), 
                 TextAlign = ContentAlignment.MiddleCenter 
             };
 
             Button btnClean = new Button { 
-                Text = "썸네일 캐시 초기화 및 탐색기 재시작", 
-                Location = new Point(30, 100), 
-                Size = new Size(370, 50), 
+                Text = "Clear Cache & Restart Explorer\n(캐시 초기화 및 탐색기 재시작)", 
+                Location = new Point(30, 110), 
+                Size = new Size(370, 60), 
                 BackColor = Color.DodgerBlue, 
                 ForeColor = Color.White, 
                 FlatStyle = FlatStyle.Flat,
@@ -53,14 +53,14 @@ namespace ModernArchiveThumbnailSettings
             btnClean.FlatAppearance.BorderSize = 0;
             btnClean.Click += (s, e) => {
                 btnClean.Enabled = false;
-                btnClean.Text = "처리 중...";
+                btnClean.Text = "Processing... (처리 중...)";
                 Application.DoEvents();
                 
                 ClearAndRestart();
                 
                 btnClean.Enabled = true;
-                btnClean.Text = "썸네일 캐시 초기화 및 탐색기 재시작";
-                MessageBox.Show("완료되었습니다.", "Complete");
+                btnClean.Text = "Clear Cache & Restart Explorer\n(캐시 초기화 및 탐색기 재시작)";
+                MessageBox.Show("Complete. (완료되었습니다.)", "Complete");
             };
 
             this.Controls.Add(lblInfo);
