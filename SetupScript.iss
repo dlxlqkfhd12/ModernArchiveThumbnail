@@ -15,6 +15,8 @@ PrivilegesRequired=admin
 CloseApplications=force
 RestartApplications=no
 UninstallDisplayIcon={app}\Settings.exe
+; ▼ [수정됨] 잘못된 명령어 삭제하고 MinVersion만 남김
+MinVersion=10.0
 
 [Files]
 Source: "C:\Users\pc\Desktop\ModernArchiveThumbnail\Settings\Settings.exe"; DestDir: "{app}"; Flags: ignoreversion
