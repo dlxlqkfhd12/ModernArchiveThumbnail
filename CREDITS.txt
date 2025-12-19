@@ -16,12 +16,7 @@ This software uses the following open source libraries:
    Copyright (c) Adam Hathcock
    https://github.com/adamhathcock/sharpcompress
 
-3. SixLabors.ImageSharp (Apache License 2.0)
-   Copyright (c) Six Labors
-   https://github.com/SixLabors/ImageSharp
+---
 
-4. Costura.Fody (MIT License)
-   Copyright (c) Simon Cropp, Cameron MacFarland
-   https://github.com/Fody/Costura
-
-5. AVIF & HEIC support is provided via Windows Imaging Component (WIC).
+Technical Note:
+Support for modern image formats (AVIF, HEIC, WebP) is natively provided via Microsoft Windows Imaging Component (WIC) and .NET Framework.

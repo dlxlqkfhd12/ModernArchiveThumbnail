@@ -1,9 +1,6 @@
 using SharpShell.Attributes;
 using SharpShell.SharpThumbnailHandler;
-using SharpCompress.Archives;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
-using Microsoft.Win32;
+using SharpCompress.Readers;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -12,7 +9,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Runtime.CompilerServices;
 using System.Windows.Media.Imaging;
 
 namespace ModernArchiveThumbnail.Handlers
@@ -21,30 +17,16 @@ namespace ModernArchiveThumbnail.Handlers
     [COMServerAssociation(AssociationType.ClassOfExtension, ".cbz", ".cbr", ".zip", ".rar", ".7z", ".cb7")]
     public class ModernArchiveThumbnailHandler : SharpThumbnailHandler
     {
-        private static readonly HashSet<string> FastFormats = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> ValidFormats = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            ".jpg", ".jpeg", ".jpe", ".jfif", ".png", ".bmp"
+            ".jpg", ".jpeg", ".jpe", ".jfif", ".png", ".bmp",
+            ".webp", ".heic", ".heif", ".avif", ".gif", ".tiff", ".tif", ".ico"
         };
 
-        private static readonly HashSet<string> ModernFormats = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            ".webp", ".heic", ".heif", ".avif", ".jxl", ".gif", ".tiff", ".tif", ".ico"
-        };
-
-        private static readonly string[] SkipPatterns = new[]
-        {
-            "credit", "recruit", "logo", "ad", "advertisement", "scanlation"
-        };
-
-        private static readonly string[] PreferPatterns = new[]
-        {
-            "cover", "front", "00", "01"
-        };
-
-        private const int MAX_FILE_SIZE = 10 * 1024 * 1024;
+        private static readonly string[] PriorityKeys = { "cover", "front", "folder", "001", "p00" };
 
         [ThreadStatic]
-        private static byte[] _sharedBuffer;
+        private static byte[] _buffer;
 
         static ModernArchiveThumbnailHandler()
         {
@@ -64,223 +46,128 @@ namespace ModernArchiveThumbnail.Handlers
 
         protected override Bitmap GetThumbnailImage(uint width)
         {
-            var sw = System.Diagnostics.Stopwatch.StartNew();
-            
+            var timeout = Environment.TickCount + 2000;
+
             try
             {
-                int active = 1, mode = 2;
-                bool skipScanlation = false, preferCover = false;
-                
-                using (var key = Registry.CurrentUser.OpenSubKey(@"Software\ModernArchiveThumbnail"))
-                {
-                    if (key != null)
-                    {
-                        active = (int)key.GetValue("HandlerRegistered", 1);
-                        mode = (int)key.GetValue("ThumbnailMode", 2);
-                        skipScanlation = (int)key.GetValue("SkipScanlation", 0) == 1;
-                        preferCover = (int)key.GetValue("PreferCover", 0) == 1;
-                    }
-                }
-
-                if (active == 0) return null;
                 if (SelectedItemStream == null) return null;
 
-                int timeout = (mode == 1) ? 600 : (mode == 3) ? 350 : 450;
-                int maxTries = (mode == 1) ? 4 : (mode == 3) ? 2 : 3;
+                if (!IsValidArchiveHeader(SelectedItemStream)) return null;
 
-                using (var archive = ArchiveFactory.Open(SelectedItemStream))
+                using (var reader = ReaderFactory.Open(SelectedItemStream))
                 {
-                    var candidates = archive.Entries
-                        .Where(e => !e.IsDirectory && e.Size > 0 && e.Size < MAX_FILE_SIZE)
-                        .Where(e => {
-                            string ext = Path.GetExtension(e.Key);
-                            return ext.Length > 0 && (FastFormats.Contains(ext) || ModernFormats.Contains(ext));
-                        })
-                        .Select(e => new {
-                            Entry = e,
-                            Name = Path.GetFileNameWithoutExtension(e.Key).ToLower(),
-                            Ext = Path.GetExtension(e.Key),
-                            Priority = CalculatePriority(e.Key, skipScanlation, preferCover)
-                        })
-                        .Where(x => x.Priority < 1000)
-                        .OrderBy(x => x.Priority)
-                        .ThenBy(x => x.Entry.Key)
-                        .Take(maxTries * 2)
-                        .Select(x => x.Entry);
+                    int scanCount = 0;
 
-                    int tried = 0;
-                    foreach (var targetEntry in candidates)
+                    while (reader.MoveToNextEntry())
                     {
-                        if (sw.ElapsedMilliseconds > timeout || tried >= maxTries) break;
-                        tried++;
-                        
+                        if (Environment.TickCount > timeout) break;
+                        if (scanCount++ >= 25) break;
+
+                        var entry = reader.Entry;
+                        if (entry.IsDirectory || entry.Size <= 0 || entry.Size > 20971520) continue;
+
+                        string ext = Path.GetExtension(entry.Key);
+                        if (string.IsNullOrEmpty(ext) || !ValidFormats.Contains(ext)) continue;
+
+                        string fileName = Path.GetFileNameWithoutExtension(entry.Key).ToLower();
+                        bool isPriority = PriorityKeys.Any(k => fileName.Contains(k)) || char.IsDigit(fileName[0]);
+
                         try
                         {
-                            long entrySize = targetEntry.Size;
-                            if (entrySize > int.MaxValue) continue;
+                            long size = entry.Size;
+                            if (size > int.MaxValue) continue;
 
-                            int size = (int)entrySize;
-                            if (_sharedBuffer == null || _sharedBuffer.Length < size)
-                                _sharedBuffer = new byte[size];
+                            int sz = (int)size;
+                            if (_buffer == null || _buffer.Length < sz)
+                                _buffer = new byte[sz];
 
-                            using (var ms = new MemoryStream(_sharedBuffer, 0, size, true, true))
+                            using (var ms = new MemoryStream(_buffer, 0, sz, true, true))
                             {
-                                targetEntry.WriteTo(ms);
+                                reader.WriteEntryTo(ms);
                                 ms.Position = 0;
 
-                                string ext = Path.GetExtension(targetEntry.Key);
-                                bool isFast = FastFormats.Contains(ext);
+                                var result = DecodeGdi(ms, width);
+                                if (result != null) return result;
 
-                                if (mode == 3 && isFast)
-                                {
-                                    var result = TryGdiDecode(ms, width);
-                                    if (result != null) return result;
-                                    continue;
-                                }
-
-                                if (mode == 3 || (mode == 2 && isFast))
-                                {
-                                    var result = TryGdiDecode(ms, width);
-                                    if (result != null) return result;
-                                    
-                                    if (sw.ElapsedMilliseconds < timeout * 0.6)
-                                    {
-                                        ms.Position = 0;
-                                        result = TryWpfDecode(ms, width);
-                                        if (result != null) return result;
-                                    }
-                                    continue;
-                                }
-
-                                if (mode == 1 || mode == 2)
-                                {
-                                    var result = TryGdiDecode(ms, width);
-                                    if (result != null) return result;
-                                    
-                                    if (sw.ElapsedMilliseconds > timeout * 0.5) break;
-                                    
-                                    ms.Position = 0;
-                                    result = TryWpfDecode(ms, width);
-                                    if (result != null) return result;
-                                    
-                                    if (sw.ElapsedMilliseconds > timeout * 0.7) break;
-                                    
-                                    ms.Position = 0;
-                                }
-
-                                var imgInfo = SixLabors.ImageSharp.Image.Identify(ms);
-                                if (imgInfo == null || imgInfo.Width > 16384 || imgInfo.Height > 16384)
-                                    continue;
-
+                                if (Environment.TickCount > timeout - 500) continue;
                                 ms.Position = 0;
-                                using (var img = SixLabors.ImageSharp.Image.Load(ms))
-                                {
-                                    var sampler = (mode == 1) ? KnownResamplers.Lanczos3 : 
-                                                  (mode == 3) ? KnownResamplers.NearestNeighbor : 
-                                                  KnownResamplers.Box;
-
-                                    img.Mutate(x => x.Resize(new ResizeOptions
-                                    {
-                                        Size = new SixLabors.ImageSharp.Size((int)width, 0),
-                                        Mode = ResizeMode.Max,
-                                        Sampler = sampler
-                                    }));
-
-                                    var bmpStream = new MemoryStream();
-                                    img.SaveAsBmp(bmpStream);
-                                    return new Bitmap(bmpStream);
-                                }
+                                result = DecodeWpf(ms, width);
+                                if (result != null) return result;
                             }
+
+                            if (isPriority) break;
                         }
-                        catch
-                        {
-                            if (sw.ElapsedMilliseconds > timeout * 0.8) break;
-                            continue;
-                        }
+                        catch { continue; }
                     }
                 }
             }
             catch { }
-            finally
-            {
-                sw.Stop();
-            }
+
             return null;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int CalculatePriority(string filename, bool skipScanlation, bool preferCover)
+        private bool IsValidArchiveHeader(Stream stream)
         {
-            string lower = filename.ToLower();
-
-            if (skipScanlation)
+            try
             {
-                foreach (var pattern in SkipPatterns)
-                {
-                    if (lower.Contains(pattern))
-                        return 1000;
-                }
-            }
+                if (stream.Length < 4) return false;
+                byte[] header = new byte[4];
+                long pos = stream.Position;
+                stream.Read(header, 0, 4);
+                stream.Position = pos;
 
-            if (preferCover)
-            {
-                foreach (var pattern in PreferPatterns)
-                {
-                    if (lower.Contains(pattern))
-                        return 0;
-                }
-            }
+                if (header[0] == 0x50 && header[1] == 0x4B) return true;
+                if (header[0] == 0x52 && header[1] == 0x61 && header[2] == 0x72 && header[3] == 0x21) return true;
+                if (header[0] == 0x37 && header[1] == 0x7A && header[2] == 0xBC && header[3] == 0xAF) return true;
 
-            return 10;
+                return true;
+            }
+            catch { return true; }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private Bitmap TryGdiDecode(MemoryStream ms, uint width)
+        private Bitmap DecodeGdi(MemoryStream ms, uint width)
         {
             try
             {
                 using (var img = System.Drawing.Image.FromStream(ms, false, false))
                 {
                     if (img.Width > 16384 || img.Height > 16384) return null;
+                    int h = Math.Max(1, (int)(img.Height * ((float)width / img.Width)));
+                    var bmp = new Bitmap((int)width, h, PixelFormat.Format24bppRgb);
 
-                    int newHeight = Math.Max(1, (int)(img.Height * ((float)width / img.Width)));
-                    var thumbnail = new Bitmap((int)width, newHeight, PixelFormat.Format24bppRgb);
-                    
-                    using (var g = Graphics.FromImage(thumbnail))
+                    using (var g = Graphics.FromImage(bmp))
                     {
                         g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Low;
-                        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighSpeed;
-                        g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighSpeed;
+                        g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceCopy;
                         g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighSpeed;
-                        g.DrawImage(img, 0, 0, (int)width, newHeight);
+                        g.DrawImage(img, 0, 0, (int)width, h);
                     }
-                    return thumbnail;
+                    return bmp;
                 }
             }
             catch { return null; }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private Bitmap TryWpfDecode(MemoryStream ms, uint width)
+        private Bitmap DecodeWpf(MemoryStream ms, uint width)
         {
             try
             {
                 ms.Position = 0;
-                var bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.StreamSource = ms;
-                bitmapImage.DecodePixelWidth = (int)width;
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.EndInit();
-                bitmapImage.Freeze();
+                var bmp = new BitmapImage();
+                bmp.BeginInit();
+                bmp.StreamSource = ms;
+                bmp.DecodePixelWidth = (int)width;
+                bmp.CacheOption = BitmapCacheOption.OnLoad;
+                bmp.EndInit();
+                bmp.Freeze();
 
-                using (var outStream = new MemoryStream())
+                using (var stream = new MemoryStream())
                 {
-                    var encoder = new BmpBitmapEncoder();
-                    encoder.Frames.Add(BitmapFrame.Create(bitmapImage));
-                    encoder.Save(outStream);
-                    outStream.Position = 0;
-                    return new Bitmap(outStream);
+                    var enc = new BmpBitmapEncoder();
+                    enc.Frames.Add(BitmapFrame.Create(bmp));
+                    enc.Save(stream);
+                    stream.Position = 0;
+                    return new Bitmap(stream);
                 }
             }
             catch { return null; }
