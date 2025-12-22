@@ -1,70 +1,59 @@
-# Modern Archive Thumbnail Handler (v2.0.0)
+Modern Archive Thumbnail Handler (v3.0.0)
+[English] A high-performance Windows Shell Extension that generates thumbnails for various archive files. v3.0.0 introduces a Deep Scan Engine that explores nested folders and optimized memory management for extreme stability.
 
-![Platform](https://img.shields.io/badge/Platform-Windows-blue) ![License](https://img.shields.io/badge/License-MIT-green) ![Version](https://img.shields.io/badge/Version-2.0.0-orange)
+[한국어] 윈도우 탐색기에서 압축 파일의 썸네일을 고속으로 보여주는 쉘 확장 프로그램입니다. v3.0.0에서는 하위 폴더 탐색(Deep Scan) 기능과 메모리 최적화 로직이 도입되어 대용량 및 복잡한 압축 파일에서도 완벽한 성능을 발휘합니다.
 
-**[English]** A high-performance Windows Shell Extension that generates thumbnails for archive files (CBZ, ZIP, RAR, 7Z).  
-Built with C# and optimized with a new streaming engine (IReader) for instant loading.
+🚀 Key Features / 주요 기능
+🇺🇸 English
+Deep Scan (NNN): Automatically explores subdirectories within archives to find the best representative image (Cover, Front, 001).
 
-**[한국어]** 윈도우 탐색기에서 압축 파일(CBZ, ZIP, RAR, 7Z)의 썸네일을 고속으로 보여주는 쉘 확장 프로그램입니다.  
-C#으로 개발되었으며, 새로운 스트리밍 엔진(IReader)을 탑재하여 대용량 파일도 즉시 로딩됩니다.
+Index-Based Engine: Transitioned to IArchive indexing, allowing instant access to images regardless of their position in the file.
 
----
+Hybrid Decoding: Dual-engine strategy using GDI+ for speed and WPF (WIC) for modern/large formats (WebP, AVIF, HEIC).
 
-## 🚀 Key Features / 주요 기능
+Smart Memory Management: Automatically releases large memory buffers (>8MB) immediately after processing to keep Windows Explorer lightweight.
 
-### 🇺🇸 English
-* **Instant Loading:** Uses `IReader` streaming technology to extract the first image without scanning the entire archive directory.
-* **Modern Format Support:** Supports **WebP, AVIF, HEIC** thumbnails inside archives (via WIC).
-* **Performance:** Pre-compiled with NGEN for zero startup latency.
-* **Stability:** Includes a strict timeout (2000ms) and "Magic Number" validation to prevent Windows Explorer crashes.
-* **Supported Formats:** `.cbz`, `.zip`, `.rar`, `.7z`, `.cbr` (and more via SharpCompress).
+Expanded Format Support: Added official support for .alz and .egg (popular Korean formats) alongside .zip, .rar, .7z, .cbz, and .cbr.
 
-### 🇰🇷 한국어
-* **초고속 로딩:** 전체 압축 목록을 읽지 않고, 스트리밍 방식(`IReader`)으로 첫 번째 이미지만 즉시 추출합니다.
-* **최신 포맷 지원:** 압축 파일 내부의 **WebP, AVIF, HEIC** 이미지도 썸네일로 표시합니다.
-* **성능 최적화:** NGEN(네이티브 이미지) 설치 방식을 적용하여 초기 구동 딜레이가 없습니다.
-* **안정성:** 타임아웃(2초) 및 매직 넘버 검증 로직이 적용되어, 파일 오류 시에도 탐색기가 멈추지 않습니다.
-* **지원 확장자:** `.cbz`, `.zip`, `.rar`, `.7z`, `.cbr` 등.
+🇰🇷 한국어
+딥 스캔 (NNN): 압축 파일 내부의 복잡한 하위 폴더를 추적하여 최적의 표지 이미지(Cover, Front, 001 등)를 찾아냅니다.
 
----
+색인 기반 엔진: IArchive 인덱싱 방식을 채택하여, 파일 위치와 상관없이 대용량 압축 파일에서도 즉시 썸네일을 추출합니다.
 
-## 📥 Installation / 설치 방법
+하이브리드 디코딩: 속도를 위한 **GDI+**와 안정성을 위한 WPF(WIC) 엔진을 결합하여 WebP, AVIF, HEIC 등 최신 포맷을 완벽하게 지원합니다.
 
-1.  Go to the **[Releases](https://github.com/dlxlqkfhd12/ModernArchiveThumbnail/releases)** page.
-2.  Download **`ModernArchiveThumbnail_Setup.exe`**.
-3.  Run the installer (Administrator privileges required).
-4.  The thumbnail cache will be automatically cleared. Enjoy!
+지능형 메모리 관리: 8MB 이상의 버퍼 사용 시 작업 직후 즉시 메모리를 회수하여 탐색기의 점유율을 최소화합니다.
 
-> **Note:** If thumbnails do not appear immediately, use the included **Settings** app to "Clear Thumbnail Cache".
+확장자 지원 확대: 기존 포맷 외에 국내 사용자가 많은 .alz, .egg 확장자에 대한 지원을 공식 추가했습니다.
 
----
+📥 Installation / 설치 방법
+Go to the Releases page.
 
-## ⚖️ License & Credits / 라이선스 및 저작권
+Download ModernArchiveThumbnail_v3.0.0_Setup.exe.
 
-### Copyright
-**Modern Archive Thumbnail Handler** Copyright (c) 2025
+Run the installer (Administrator privileges required).
 
-This software is provided 'as-is', without any express or implied warranty.  
-In no event will the authors be held liable for any damages arising from the use of this software.
+The installer will automatically register the server and clear the thumbnail cache.
 
----
+Note: If thumbnails do not appear, use the included Settings app to "Clear Thumbnail Cache".
 
-### Open Source Libraries
-This software uses the following open source libraries.  
-본 소프트웨어는 다음의 오픈 소스 라이브러리를 사용합니다.
+⚖️ License & Credits / 라이선스 및 저작권
+Copyright
+Modern Archive Thumbnail Handler Copyright (c) 2025
 
-#### 1. SharpShell
-* **License:** MIT License
-* **Author:** Dave Kerr
-* **Source:** [https://github.com/dwmkerr/sharpshell](https://github.com/dwmkerr/sharpshell)
+This software is provided 'as-is', without any express or implied warranty.
 
-#### 2. SharpCompress
-* **License:** MIT License
-* **Author:** Adam Hathcock
-* **Source:** [https://github.com/adamhathcock/sharpcompress](https://github.com/adamhathcock/sharpcompress)
+Open Source Libraries
+SharpShell (MIT License) - Link
 
----
+SharpCompress (MIT License) - Link
 
-### Technical Note
-Support for modern image formats (AVIF, HEIC, WebP) is natively provided via **Microsoft Windows Imaging Component (WIC)** and .NET Framework.  
-(ImageSharp library has been removed in v2.0.0 for better performance and native compatibility.)
+Technical Note
+v3.0.0 has been optimized with BmpBitmapEncoder for faster processing and a strategic AssemblyResolve logic to ensure stable library loading in any environment.
+
+📒 Developer's Note (v3.0.0)
+"The transition from v2.0.0 to v3.0.0 is a complete rewrite of the scanning logic. We moved from a simple sequential reader to a sophisticated indexing system that handles nested folders (NNN). This version is built to be the most stable and performant thumbnail handler for Windows 10/11."
+
+v3.0.0 배포를 진심으로 축하드립니다! 이 README는 사용자님이 오늘 하루 동안 고생하며 해결한 모든 기술적 정수(Deep Scan, Memory Leak 방지, ALZ/EGG 지원 등)를 잘 보여주고 있습니다.
+
+이대로 깃허브에 올리시면 국내외 사용자 모두에게 아주 신뢰받는 프로그램이 될 거예요. 이제 정말 마침표를 찍으실 준비가 되셨나요? 추가로 다듬고 싶은 문구가 있다면 말씀해 주세요! Would you like me to help you with the final release check?
