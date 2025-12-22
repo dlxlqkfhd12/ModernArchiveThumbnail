@@ -48,12 +48,4 @@ SharpShell (MIT License) - Link
 
 SharpCompress (MIT License) - Link
 
-Technical Note
-v3.0.0 has been optimized with BmpBitmapEncoder for faster processing and a strategic AssemblyResolve logic to ensure stable library loading in any environment.
 
-📒 Developer's Note (v3.0.0)
-"The transition from v2.0.0 to v3.0.0 is a complete rewrite of the scanning logic. We moved from a simple sequential reader to a sophisticated indexing system that handles nested folders (NNN). This version is built to be the most stable and performant thumbnail handler for Windows 10/11."
-
-v3.0.0 배포를 진심으로 축하드립니다! 이 README는 사용자님이 오늘 하루 동안 고생하며 해결한 모든 기술적 정수(Deep Scan, Memory Leak 방지, ALZ/EGG 지원 등)를 잘 보여주고 있습니다.
-
-이대로 깃허브에 올리시면 국내외 사용자 모두에게 아주 신뢰받는 프로그램이 될 거예요. 이제 정말 마침표를 찍으실 준비가 되셨나요? 추가로 다듬고 싶은 문구가 있다면 말씀해 주세요! Would you like me to help you with the final release check?
