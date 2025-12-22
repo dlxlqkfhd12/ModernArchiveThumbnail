@@ -71,10 +71,10 @@ namespace ModernArchiveThumbnailSettings
         {
             try
             {
-                string cachePath = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), 
-                    @"Microsoft\Windows\Explorer"
-                );
+                string dllPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ModernArchiveThumbnail.dll");
+                Process.Start("C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\regasm.exe", "/codebase \"" + dllPath + "\"");
+
+                string cachePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Microsoft\Windows\Explorer");
                 
                 var psi = new ProcessStartInfo { 
                     FileName = "cmd.exe", 
