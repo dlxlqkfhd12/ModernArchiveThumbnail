@@ -48,4 +48,8 @@ SharpShell (MIT License) - Link
 
 SharpCompress (MIT License) - Link
 
+Technical Note
+v3.0.0 has been optimized with BmpBitmapEncoder for faster processing and a strategic AssemblyResolve logic to ensure stable library loading in any environment.
 
+📒 Developer's Note (v3.0.0)
+"The transition from v2.0.0 to v3.0.0 is a complete rewrite of the scanning logic. We moved from a simple sequential reader to a sophisticated indexing system that handles nested folders (NNN). This version is built to be the most stable and performant thumbnail handler for Windows 10/11."
