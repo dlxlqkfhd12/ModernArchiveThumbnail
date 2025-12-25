@@ -1,0 +1,33 @@
+﻿/**
+ * ModernArchiveThumbnail.idl
+ * * This file defines the COM interfaces and the type library for
+ * the ModernArchiveThumbnail shell extension.
+ */
+
+import "oaidl.idl";
+import "ocidl.idl";
+import "shobjidl.idl"; // Import standard Windows Shell interfaces
+
+[
+    uuid(74a04d8a-f0c9-475b-9134-68862ecd16ec), // Library ID (LIBID)
+    version(1.0),
+    helpstring("ModernArchiveThumbnail 1.0 Type Library")
+]
+library ModernArchiveThumbnailLib
+{
+    importlib("stdole2.tlb");
+
+    /**
+     * ThumbnailProvider Class
+     * This class implements the IThumbnailProvider interface to generate
+     * thumbnails for various archive formats.
+     */
+    [
+        uuid(9E8F7ABC-1234-4D22-9AA0-123456789111), // Class ID (CLSID)
+        helpstring("ThumbnailProvider Class")
+    ]
+    coclass ThumbnailProvider
+    {
+        [default] interface IUnknown;
+    };
+};

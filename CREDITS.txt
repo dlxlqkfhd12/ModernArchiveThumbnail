@@ -1,0 +1,63 @@
+============================================================
+   CREDITS AND OPEN SOURCE LIBRARIES
+============================================================
+
+[KR] 본 소프트웨어는 다음과 같은 오픈소스 라이브러리를 사용합니다. 
+각 라이브러리의 저작권은 해당 소유자에게 있으며, 본 프로그램은 
+각 라이선스 규정을 준수합니다.
+
+[EN] This software uses the following open source libraries. 
+All copyrights belong to their respective owners, and this 
+software complies with each library's license terms.
+
+------------------------------------------------------------
+1. libarchive
+   - Website: https://www.libarchive.org/
+   - License: BSD 2-Clause License
+   - Copyright (c) 2003-2024 Tim Kientzle and others.
+
+2. zlib
+   - Website: https://zlib.net/
+   - License: zlib License
+   - Copyright (c) 1995-2024 Jean-loup Gailly and Mark Adler.
+
+3. liblzma (XZ Utils)
+   - Website: https://tukaani.org/xz/
+   - License: Public Domain / LGPL
+   - Copyright (c) Lasse Collin and others.
+
+4. LZ4
+   - Website: https://lz4.org/
+   - License: BSD 2-Clause License
+   - Copyright (c) 2011-2024 Yann Collet.
+
+5. Zstandard (zstd)
+   - Website: https://facebook.github.io/zstd/
+   - License: BSD / GPLv2
+   - Copyright (c) Meta Platforms, Inc. and affiliates.
+
+6. OpenSSL (libcrypto)
+   - Website: https://www.openssl.org/
+   - License: Apache License 2.0
+   - Copyright (c) 1998-2024 The OpenSSL Project.
+
+7. bzip2 (libbz2)
+   - Website: https://sourceware.org/bzip2/
+   - License: bzip2 License
+   - Copyright (c) 1996-2024 Julian Seward.
+
+------------------------------------------------------------
+[DISCLAIMER / 면책 조항]
+
+[KR] 본 프로그램은 교육 및 개인적 용도의 목적으로 "있는 그대로" 제공됩니다. 
+제작자는 이 프로그램을 사용하여 발생하는 어떠한 손해(시스템 장애, 
+데이터 손실 등)에 대해서도 법적 책임을 지지 않습니다.
+
+[EN] THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+EXPRESS OR IMPLIED. IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR 
+ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING FROM THE USE OF 
+THE SOFTWARE.
+
+------------------------------------------------------------
+Copyright (c) 2025 [Your Name/Nickname]. All rights reserved.
+============================================================

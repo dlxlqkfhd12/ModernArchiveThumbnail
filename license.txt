@@ -1,0 +1,31 @@
+============================================================
+   !!! 중요: 설치 전 반드시 읽어주시기 바랍니다 !!!
+   !!! IMPORTANT: READ BEFORE INSTALLATION !!!
+============================================================
+
+[면책 조항 / DISCLAIMER]
+
+1. 본 소프트웨어는 개인적/교육적 목적으로 제공되는 오픈소스 프로그램입니다.
+2. 제작자는 본 프로그램의 사용으로 인해 발생하는 모든 문제(시스템 오류, 
+   탐색기 충돌, 데이터 손실, 하드웨어 손상 등)에 대해 법적 책임을 지지 않습니다.
+3. 사용자는 본인의 판단과 책임 하에 본 소프트웨어를 사용해야 합니다.
+4. 설치 버튼을 누르거나 체크박스에 동의하는 것은 위 모든 조항에 
+   법적으로 동의함을 의미합니다.
+
+1. This software is provided "AS-IS" for personal/educational use.
+2. The author shall not be held liable for any system failures, 
+   data loss, or any legal issues arising from the use of this software.
+3. Use this software at your own risk and discretion.
+4. By checking the box and proceeding with installation, you agree 
+   to these terms and conditions.
+
+------------------------------------------------------------
+MIT License
+
+Copyright (c) 2025 [Your Name]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
