@@ -1,0 +1,28 @@
+HKCR
+{
+	NoRemove SystemFileAssociations
+	{
+		NoRemove .zip { NoRemove ShellEx { {e357fccd-a995-4576-b01f-234630154e96} = s '{1330CB22-9D87-4DA5-A852-9CADD6634708}' } }
+		NoRemove .rar { NoRemove ShellEx { {e357fccd-a995-4576-b01f-234630154e96} = s '{1330CB22-9D87-4DA5-A852-9CADD6634708}' } }
+		NoRemove .7z  { NoRemove ShellEx { {e357fccd-a995-4576-b01f-234630154e96} = s '{1330CB22-9D87-4DA5-A852-9CADD6634708}' } }
+		NoRemove .cbz { NoRemove ShellEx { {e357fccd-a995-4576-b01f-234630154e96} = s '{1330CB22-9D87-4DA5-A852-9CADD6634708}' } }
+		NoRemove .cbr { NoRemove ShellEx { {e357fccd-a995-4576-b01f-234630154e96} = s '{1330CB22-9D87-4DA5-A852-9CADD6634708}' } }
+		NoRemove .cb7 { NoRemove ShellEx { {e357fccd-a995-4576-b01f-234630154e96} = s '{1330CB22-9D87-4DA5-A852-9CADD6634708}' } }
+		NoRemove .alz { NoRemove ShellEx { {e357fccd-a995-4576-b01f-234630154e96} = s '{1330CB22-9D87-4DA5-A852-9CADD6634708}' } }
+		NoRemove .egg { NoRemove ShellEx { {e357fccd-a995-4576-b01f-234630154e96} = s '{1330CB22-9D87-4DA5-A852-9CADD6634708}' } }
+		NoRemove .tar { NoRemove ShellEx { {e357fccd-a995-4576-b01f-234630154e96} = s '{1330CB22-9D87-4DA5-A852-9CADD6634708}' } }
+		NoRemove .gz  { NoRemove ShellEx { {e357fccd-a995-4576-b01f-234630154e96} = s '{1330CB22-9D87-4DA5-A852-9CADD6634708}' } }
+		NoRemove .lzh { NoRemove ShellEx { {e357fccd-a995-4576-b01f-234630154e96} = s '{1330CB22-9D87-4DA5-A852-9CADD6634708}' } }
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {1330CB22-9D87-4DA5-A852-9CADD6634708} = s 'ModernArchive Thumbnail Provider'
+		{
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			val AppID = s '%APPID%'
+		}
+	}
+}
