@@ -6,6 +6,14 @@
 #include <wrl/client.h>
 #include "ModernArchiveThumbnail_h.h" 
 
+#define THUMBNAIL_VERSION L"1.1.2"
+
+#ifdef _DEBUG
+#define LOG_DEBUG(msg) OutputDebugStringW(L"[Thumbnail] " msg L"\n")
+#else
+#define LOG_DEBUG(msg)
+#endif
+
 using namespace Microsoft::WRL;
 
 class ATL_NO_VTABLE CThumbnailProvider :
