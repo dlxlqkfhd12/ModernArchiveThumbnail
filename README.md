@@ -53,3 +53,8 @@ Download the latest .exe from the Releases tab.
 Run the installer as Administrator. (It automatically handles legacy cleanup and runtime issues.)
 
 File Explorer will restart automatically, and thumbnails will begin generating instantly.
+
+<img width="1421" height="985" alt="썸네일1" src="https://github.com/user-attachments/assets/c786a411-8c35-41ba-be36-65a933fa44f3" />
+
+<img width="1421" height="985" alt="썸네일2" src="https://github.com/user-attachments/assets/fedcde69-a8a2-4317-9938-b7110f77f55c" />
+
